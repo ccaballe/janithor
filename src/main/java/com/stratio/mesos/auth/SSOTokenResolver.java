@@ -18,6 +18,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 
 public class SSOTokenResolver {
     final static Logger log = Logger.getLogger(SSOTokenResolver.class);
@@ -33,6 +34,8 @@ public class SSOTokenResolver {
 
     private RedirectionInterceptor redirectionInterceptor;
     private CookieInterceptor cookieInterceptor;
+    private long connectionTimeout = 30000;
+    private long readTimeout = 30000;
 
     public SSOTokenResolver(String baseUrl, String user, String password) {
         this.baseUrl = baseUrl;
@@ -45,8 +48,45 @@ public class SSOTokenResolver {
         this.clientBuilder = HTTPUtils.getUnsafeOkHttpClient();
         this.clientBuilder.addNetworkInterceptor(this.redirectionInterceptor);
         this.clientBuilder.addNetworkInterceptor(this.cookieInterceptor);
+        this.clientBuilder.connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
+        this.clientBuilder.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
+        this.clientHttp = clientBuilder.build();
+
+    }
+
+    public SSOTokenResolver(String baseUrl, String user, String password, long connectionTimeout, long readTimeout) {
+        this.baseUrl = baseUrl;
+        this.marathonUser = user;
+        this.marathonSecret = password;
+
+        this.redirectionInterceptor = new RedirectionInterceptor();
+        this.cookieInterceptor = new CookieInterceptor();
+        this.clientBuilder = new OkHttpClient.Builder();
+        this.clientBuilder = HTTPUtils.getUnsafeOkHttpClient();
+        this.clientBuilder.addNetworkInterceptor(this.redirectionInterceptor);
+        this.clientBuilder.addNetworkInterceptor(this.cookieInterceptor);
+        this.clientBuilder.connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
+        this.clientBuilder.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
         this.clientHttp = clientBuilder.build();
     }
+
+    public SSOTokenResolver(String tenant, String baseUrl, String user, String password, long connectionTimeout, long readTimeout) {
+        this.baseUrl = baseUrl;
+        this.tenant = tenant;
+        this.marathonUser = user;
+        this.marathonSecret = password;
+
+        this.redirectionInterceptor = new RedirectionInterceptor();
+        this.cookieInterceptor = new CookieInterceptor();
+        this.clientBuilder = new OkHttpClient.Builder();
+        this.clientBuilder = HTTPUtils.getUnsafeOkHttpClient();
+        this.clientBuilder.addNetworkInterceptor(this.redirectionInterceptor);
+        this.clientBuilder.addNetworkInterceptor(this.cookieInterceptor);
+        this.clientBuilder.connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
+        this.clientBuilder.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
+        this.clientHttp = clientBuilder.build();
+    }
+
 
     public SSOTokenResolver(String tenant, String baseUrl, String user, String password) {
         this.baseUrl = baseUrl;
@@ -60,9 +100,10 @@ public class SSOTokenResolver {
         this.clientBuilder = HTTPUtils.getUnsafeOkHttpClient();
         this.clientBuilder.addNetworkInterceptor(this.redirectionInterceptor);
         this.clientBuilder.addNetworkInterceptor(this.cookieInterceptor);
+        this.clientBuilder.connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
+        this.clientBuilder.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
         this.clientHttp = clientBuilder.build();
     }
-
 
     /**
      * Performs authentication and returns success or failure
