@@ -8,7 +8,7 @@ hose {
     BUILDTOOLVERSION = '3.5.0'
     DEVTIMEOUT = 20
     RELEASETIMEOUT = 30
-    DEPLOYONPRS = true
+    DEPLOYONPRS = false
 
     DEV = { config ->
         doCompile(config)
